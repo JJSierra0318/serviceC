@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - 'feature/**'  # Permite versiones desde ramas feature/*
+      - 'renovate/**'
   workflow_dispatch:
 
 permissions:
