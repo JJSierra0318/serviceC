@@ -1,0 +1,56 @@
+name: Trigger Renovate
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_repo:
+        description: 'Target repo (e.g. ServiceA)'
+        required: true
+        default: 'ServiceA'
+
+jobs:
+  check-renovate-box:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Renovate Dashboard in another repo
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = 'JJSierra0318';
+            const repo = core.getInput('target_repo');
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            const dashboard = issues.find(issue =>
+              issue.title.includes('Dependency Dashboard')
+            );
+
+            if (!dashboard) {
+              core.setFailed(No Dependency Dashboard found in ${repo});
+              return;
+            }
+
+            const updatedBody = dashboard.body.replace(
+              '[ ] <!-- manual job -->Check this box to trigger a request for Renovate to run again on this repository',
+              '[x] <!-- manual job -->Check this box to trigger a request for Renovate to run again on this repository'
+            );
+
+            if (updatedBody === dashboard.body) {
+              console.log('Checkbox already checked or missing.');
+              return;
+            }
+
+            await github.rest.issues.update({
+              owner,
+              repo,
+              issue_number: dashboard.number,
+              body: updatedBody
+            });
+
+            console.log(Triggered Renovate scan in ${repo});
