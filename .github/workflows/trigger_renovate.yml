@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       target_repo:
-        description: 'Target repo (e.g. ServiceA)'
+        description: 'Target repo'
         required: true
-        default: 'ServiceA'
+        default: 'ServiceB'
 
 jobs:
   check-renovate-box:
@@ -32,7 +32,7 @@ jobs:
             );
 
             if (!dashboard) {
-              core.setFailed(No Dependency Dashboard found in ${repo});
+              core.setFailed(`No Dependency Dashboard found in ${repo}`);
               return;
             }
 
@@ -53,4 +53,4 @@ jobs:
               body: updatedBody
             });
 
-            console.log(Triggered Renovate scan in ${repo});
+            console.log(`Triggered Renovate scan in ${repo}`);
