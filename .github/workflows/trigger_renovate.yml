@@ -2,11 +2,6 @@ name: Trigger Renovate
 
 on:
   workflow_dispatch:
-    inputs:
-      target_repo:
-        description: 'Target repo'
-        required: true
-        default: 'ServiceB'
 
 jobs:
   check-renovate-box:
@@ -18,7 +13,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const owner = 'JJSierra0318';
-            const repo = core.getInput('target_repo');
+            const repo = 'ServiceB';
 
             const { data: issues } = await github.rest.issues.listForRepo({
               owner,
