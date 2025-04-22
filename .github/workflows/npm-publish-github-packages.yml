@@ -86,10 +86,16 @@ jobs:
           VERSION=${TAG#v}
           npm version $VERSION --no-git-tag-version
 
+      - name: Set NPM publish tag
+        run: |
+          if [[ "${{ github.ref }}" == refs/heads/feature/* ]] || [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "NPM_TAG=dev" >> $GITHUB_ENV
+          else
+            echo "NPM_TAG=latest" >> $GITHUB_ENV
+          fi
+
       - name: Publish to GitHub Packages
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --tag $NPM_TAG
 
   trigger-renovate:
     needs: 'publish-gpr'
