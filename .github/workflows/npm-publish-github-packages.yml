@@ -8,7 +8,10 @@ on:
   push:
     branches:
       - main
-      - 'feature/**'  # Permite versiones desde ramas feature/*
+      - 'feature/**'
+  pull_request:
+    types: [labeled]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -100,7 +103,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   trigger-renovate:
-    if: ${{ github.ref == 'refs/heads/feature/*' }}
+    if: contains(github.event.pull_request.labels.*.name, 'renovate')
     needs: 'publish-gpr'
     uses: ./.github/workflows/trigger_renovate.yml
     secrets: inherit
