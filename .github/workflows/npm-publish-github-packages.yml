@@ -96,6 +96,8 @@ jobs:
 
       - name: Publish to GitHub Packages
         run: npm publish --tag $NPM_TAG
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   trigger-renovate:
     needs: 'publish-gpr'
