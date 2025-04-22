@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Repo B
         uses: actions/checkout@v3
         with:
-          repository: org/repo-b
+          repository: @jjsierra0318/serviceb
           token: ${{ secrets.NPM_TOKEN }}
           ref: main
 
