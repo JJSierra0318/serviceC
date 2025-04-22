@@ -91,7 +91,7 @@ jobs:
 
       - name: Set NPM publish tag
         run: |
-          if [[ "${{ github.ref }}" == refs/heads/feature/* ]] || [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          if [[ "$(echo ${{ toJson(github.event.pull_request.labels) }} | grep -o '\"name\": \"renovate\"')" ]]; then
             echo "NPM_TAG=renovate" >> $GITHUB_ENV
           else
             echo "NPM_TAG=latest" >> $GITHUB_ENV

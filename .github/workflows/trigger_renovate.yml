@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Repo B
         uses: actions/checkout@v3
         with:
-          repository: org/repo-b
+          repository: jjsierra0318/serviceb
           token: ${{ secrets.NPM_TOKEN }}
           ref: main
 
@@ -31,7 +31,7 @@ jobs:
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
       - name: Wait for Renovate to pick up changes
-        run: sleep 60 
+        run: sleep 10 
 
       - name: Delete dummy branch
         run: |
