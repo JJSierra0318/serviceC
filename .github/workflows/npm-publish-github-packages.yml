@@ -100,7 +100,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   trigger-renovate:
-    if: ${{ github.ref == 'refs/heads/feature/*' }}
+    if: ${{ startsWith(github.ref, 'refs/heads/feature/') }}
     needs: 'publish-gpr'
     uses: ./.github/workflows/trigger_renovate.yml
     secrets: inherit
