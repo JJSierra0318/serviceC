@@ -86,7 +86,21 @@ jobs:
           VERSION=${TAG#v}
           npm version $VERSION --no-git-tag-version
 
+      - name: Set NPM publish tag
+        run: |
+          if [[ "${{ github.ref }}" == refs/heads/feature/* ]] || [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "NPM_TAG=renovate" >> $GITHUB_ENV
+          else
+            echo "NPM_TAG=latest" >> $GITHUB_ENV
+          fi
+
       - name: Publish to GitHub Packages
-        run: npm publish
+        run: npm publish --tag $NPM_TAG
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  trigger-renovate:
+    if: ${{ github.ref == 'refs/heads/feature/*' }}
+    needs: 'publish-gpr'
+    uses: ./.github/workflows/trigger-renovate.yml
+    secrets: inherit

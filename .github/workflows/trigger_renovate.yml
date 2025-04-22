@@ -1,58 +1,38 @@
 name: Trigger Renovate
 
 on:
-  pull_request:
-    types: [ labeled ]
+  workflow_dispatch:
+  workflow_call:
 
 jobs:
-  version:
-    if: ${{ github.event.label.name == 'renovate' }}
-    runs-on: ubuntu-latest
-    outputs:
-      new_tag: ${{ steps.tag_version.outputs.new_tag }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Increment version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: patch
-          initial_version: '1.0.0'  # Inicia desde v1.0.0 si no hay tags previos
-          tag_prefix: 'v'
-          commit_message: 'ci: Increment version to {{version}}'
-
-  trigger_renovate:
-    if: ${{ github.event.label.name == 'renovate' }}
+  trigger-renovate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Repo B
         uses: actions/checkout@v3
-
-      - name: Set up Node
-        uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          repository: org/repo-b
+          token: ${{ secrets.NPM_TOKEN }}
+          ref: main
 
-      - name: Authenticate with npm
+      - name: Configure Git
         run: |
-          echo "@jjsierra0318:registry=https://npm.pkg.github.com/" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Sync package.json version with tag
+      - name: Create a dummy branch and commit
         run: |
-          TAG=${{ needs.version.outputs.new_tag }}
-          VERSION=${TAG#v}
-          npm version $VERSION --no-git-tag-version
+          BRANCH_NAME=renovate-trigger-$(date +%s)
+          git checkout -b $BRANCH_NAME
+          echo " " >> renovate.json
+          git add .
+          git commit -m "chore: trigger renovate scan"
+          git push origin $BRANCH_NAME
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
-      - name: Publish package with tag
-        run: npm publish --tag renovate
+      - name: Wait for Renovate to pick up changes
+        run: sleep 60 
+
+      - name: Delete dummy branch
+        run: |
+          git push origin --delete $BRANCH_NAME
