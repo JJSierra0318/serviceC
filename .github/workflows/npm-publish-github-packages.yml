@@ -102,5 +102,5 @@ jobs:
   trigger-renovate:
     if: ${{ github.ref == 'refs/heads/feature/*' }}
     needs: 'publish-gpr'
-    uses: ./.github/workflows/trigger-renovate.yml
+    uses: ./.github/workflows/trigger_renovate.yml
     secrets: inherit
